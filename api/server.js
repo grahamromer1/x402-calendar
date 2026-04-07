@@ -9,6 +9,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../public")));
 
+// Diagnostic: log which env vars are set (not their values)
+console.log("ENV CHECK:", {
+  GOOGLE_CLIENT_ID: !!process.env.GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET: !!process.env.GOOGLE_CLIENT_SECRET,
+  GOOGLE_REDIRECT_URI: !!process.env.GOOGLE_REDIRECT_URI,
+  GOOGLE_REFRESH_TOKEN: !!process.env.GOOGLE_REFRESH_TOKEN,
+  GOOGLE_CALENDAR_ID: !!process.env.GOOGLE_CALENDAR_ID,
+});
+
 // ============================================================
 // GET /api/availability?date=2026-04-10
 // Free endpoint — returns available 30-min slots for a date
@@ -23,8 +32,8 @@ app.get("/api/availability", async (req, res) => {
     const slots = await getAvailableSlots(date);
     return res.json({ date, slots, timezone: "America/Los_Angeles" });
   } catch (err) {
-    console.error("Availability error:", err.message);
-    return res.status(500).json({ error: "Failed to fetch availability" });
+    console.error("Availability error:", err.message, err.response?.data || err.code || "");
+    return res.status(500).json({ error: "Failed to fetch availability", detail: err.message });
   }
 });
 
