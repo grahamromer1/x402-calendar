@@ -1,0 +1,15 @@
+{
+  "name": "x402-calendar",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node api/server.js",
+    "start": "node api/server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "googleapis": "^140.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5"
+  }
+}

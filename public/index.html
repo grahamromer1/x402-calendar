@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book a Paid Session</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #141419;
+      --surface-hover: #1c1c24;
+      --border: #2a2a35;
+      --text: #e8e8ed;
+      --text-muted: #8888a0;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.15);
+      --success: #22c55e;
+      --danger: #ef4444;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 520px;
+      width: 100%;
+    }
+
+    .header {
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .price-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-glow);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 12px;
+    }
+
+    .price-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    /* Steps */
+    .step { display: none; }
+    .step.active { display: block; }
+
+    .step-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    /* Date picker */
+    .date-input {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+      cursor: pointer;
+    }
+
+    .date-input:focus {
+      border-color: var(--accent);
+    }
+
+    /* Slots grid */
+    .slots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .slot-btn {
+      padding: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .slot-btn:hover {
+      background: var(--surface-hover);
+      border-color: var(--accent);
+    }
+
+    .slot-btn.selected {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .no-slots {
+      padding: 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      margin-top: 16px;
+    }
+
+    .loading {
+      color: var(--text-muted);
+      font-size: 14px;
+      padding: 20px 0;
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: 8px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-back {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      margin-top: 8px;
+    }
+
+    /* Confirmation */
+    .confirmation {
+      text-align: center;
+      padding: 40px 0;
+    }
+
+    .confirmation .check {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(34, 197, 94, 0.1);
+      border: 2px solid var(--success);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 28px;
+    }
+
+    .confirmation h2 {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .confirmation p {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .summary-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 14px;
+    }
+
+    .summary-row .label {
+      color: var(--text-muted);
+    }
+
+    .error-msg {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      margin-top: 12px;
+    }
+
+    /* Wallet status */
+    .wallet-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    .wallet-bar .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .wallet-bar .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--danger);
+    }
+
+    .wallet-bar .dot.connected {
+      background: var(--success);
+    }
+
+    .wallet-bar button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Book a Session</h1>
+      <p>30-minute paid consultation. Pick a time, pay with USDC on Base, and you're confirmed instantly.</p>
+      <div class="price-badge">$1 USDC per session</div>
+    </div>
+
+    <!-- Wallet Connection -->
+    <div class="wallet-bar">
+      <div class="status">
+        <div class="dot" id="walletDot"></div>
+        <span id="walletLabel">No wallet connected</span>
+      </div>
+      <button id="walletBtn" onclick="connectWallet()">Connect</button>
+    </div>
+
+    <!-- Step 1: Pick date & slot -->
+    <div class="step active" id="step1">
+      <div class="step-label">01 — Pick a time</div>
+      <input type="date" class="date-input" id="datePicker" />
+      <div id="slotsContainer"></div>
+      <button class="btn btn-primary" id="nextToForm" disabled onclick="goToStep(2)">
+        Continue
+      </button>
+    </div>
+
+    <!-- Step 2: Your details -->
+    <div class="step" id="step2">
+      <div class="step-label">02 — Your details</div>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="nameInput" placeholder="Jane Smith" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="emailInput" placeholder="jane@example.com" />
+      </div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="tel" id="phoneInput" placeholder="+1 (555) 123-4567" />
+      </div>
+      <div class="form-group">
+        <label>Purpose</label>
+        <textarea id="purposeInput" placeholder="What would you like to discuss?"></textarea>
+      </div>
+      <button class="btn btn-primary" id="bookBtn" onclick="submitBooking()">
+        Pay $1 USDC & Book
+      </button>
+      <button class="btn btn-back" onclick="goToStep(1)">Back</button>
+      <div id="errorMsg" class="error-msg" style="display:none"></div>
+    </div>
+
+    <!-- Step 3: Confirmation -->
+    <div class="step" id="step3">
+      <div class="confirmation">
+        <div class="check">✓</div>
+        <h2>Booked!</h2>
+        <p>You'll receive a calendar invite at your email shortly.</p>
+        <div class="summary-box" id="summaryBox"></div>
+        <button class="btn btn-back" style="margin-top:20px" onclick="resetAll()">Book another</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin;
+    let selectedSlot = null;
+    let walletAddress = null;
+
+    // --- Date picker setup ---
+    const datePicker = document.getElementById("datePicker");
+    const today = new Date();
+    datePicker.min = today.toISOString().split("T")[0];
+    // Max 30 days out
+    const maxDate = new Date(today);
+    maxDate.setDate(maxDate.getDate() + 30);
+    datePicker.max = maxDate.toISOString().split("T")[0];
+
+    datePicker.addEventListener("change", async () => {
+      selectedSlot = null;
+      document.getElementById("nextToForm").disabled = true;
+      await loadSlots(datePicker.value);
+    });
+
+    // --- Load slots ---
+    async function loadSlots(date) {
+      const container = document.getElementById("slotsContainer");
+      container.innerHTML = '<div class="loading">Loading available times...</div>';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/availability?date=${date}`);
+        const data = await res.json();
+
+        if (!data.slots || data.slots.length === 0) {
+          container.innerHTML = '<div class="no-slots">No available slots on this date</div>';
+          return;
+        }
+
+        container.innerHTML = '<div class="slots-grid">' +
+          data.slots.map(s => {
+            const time = formatTime(s.start);
+            return `<button class="slot-btn" data-slot="${s.start}" onclick="pickSlot(this, '${s.start}')">${time}</button>`;
+          }).join("") +
+          '</div>';
+      } catch (err) {
+        container.innerHTML = '<div class="no-slots">Failed to load availability</div>';
+      }
+    }
+
+    function formatTime(isoStr) {
+      // Parse as local time string e.g. "2026-04-10T14:00:00"
+      const [, timePart] = isoStr.split("T");
+      const [h, m] = timePart.split(":");
+      const hour = parseInt(h);
+      const ampm = hour >= 12 ? "PM" : "AM";
+      const h12 = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+      return `${h12}:${m} ${ampm}`;
+    }
+
+    function pickSlot(btn, slot) {
+      document.querySelectorAll(".slot-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      selectedSlot = slot;
+      document.getElementById("nextToForm").disabled = false;
+    }
+
+    // --- Steps ---
+    function goToStep(n) {
+      document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
+      document.getElementById(`step${n}`).classList.add("active");
+    }
+
+    // --- Wallet ---
+    async function connectWallet() {
+      if (!window.ethereum) {
+        alert("Please install MetaMask or another Web3 wallet");
+        return;
+      }
+      try {
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        walletAddress = accounts[0];
+        document.getElementById("walletDot").classList.add("connected");
+        document.getElementById("walletLabel").textContent =
+          walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4);
+        document.getElementById("walletBtn").textContent = "Connected";
+        document.getElementById("walletBtn").disabled = true;
+      } catch (err) {
+        console.error("Wallet connection failed:", err);
+      }
+    }
+
+    // --- Booking ---
+    async function submitBooking() {
+      const name = document.getElementById("nameInput").value.trim();
+      const email = document.getElementById("emailInput").value.trim();
+      const phone = document.getElementById("phoneInput").value.trim();
+      const purpose = document.getElementById("purposeInput").value.trim();
+      const errorEl = document.getElementById("errorMsg");
+      errorEl.style.display = "none";
+
+      if (!name || !email || !phone || !purpose) {
+        errorEl.textContent = "All fields are required.";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      if (!walletAddress) {
+        errorEl.textContent = "Please connect your wallet first.";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      const bookBtn = document.getElementById("bookBtn");
+      bookBtn.disabled = true;
+      bookBtn.textContent = "Processing payment...";
+
+      try {
+        // In production with x402, the fetch will automatically trigger
+        // the 402 → payment → retry flow via the x402 client library.
+        // For MVP, we POST directly.
+        const res = await fetch(`${API_BASE}/api/book`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slot: selectedSlot, name, email, phone, purpose }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || "Booking failed");
+        }
+
+        // Show confirmation
+        document.getElementById("summaryBox").innerHTML = `
+          <div class="summary-row"><span class="label">Date</span><span>${selectedSlot.split("T")[0]}</span></div>
+          <div class="summary-row"><span class="label">Time</span><span>${formatTime(selectedSlot)} PT</span></div>
+          <div class="summary-row"><span class="label">Name</span><span>${name}</span></div>
+          <div class="summary-row"><span class="label">Email</span><span>${email}</span></div>
+          <div class="summary-row"><span class="label">Paid</span><span>$1 USDC</span></div>
+        `;
+        goToStep(3);
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.style.display = "block";
+        bookBtn.disabled = false;
+        bookBtn.textContent = "Pay $1 USDC & Book";
+      }
+    }
+
+    function resetAll() {
+      selectedSlot = null;
+      datePicker.value = "";
+      document.getElementById("slotsContainer").innerHTML = "";
+      document.getElementById("nameInput").value = "";
+      document.getElementById("emailInput").value = "";
+      document.getElementById("phoneInput").value = "";
+      document.getElementById("purposeInput").value = "";
+      document.getElementById("nextToForm").disabled = true;
+      document.getElementById("errorMsg").style.display = "none";
+      goToStep(1);
+    }
+  </script>
+</body>
+</html>
